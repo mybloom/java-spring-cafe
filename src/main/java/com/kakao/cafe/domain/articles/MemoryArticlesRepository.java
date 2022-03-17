@@ -1,5 +1,6 @@
 package com.kakao.cafe.domain.articles;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
