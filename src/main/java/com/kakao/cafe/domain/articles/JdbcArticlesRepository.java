@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import javax.sql.DataSource;
@@ -15,17 +14,18 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @Primary
-public class JdbcMemberRepository implements ArticlesRepository {
+public class JdbcArticlesRepository implements ArticlesRepository {
 
 	private final DataSource dataSource;
 
-	public JdbcMemberRepository(DataSource dataSource) {
+	public JdbcArticlesRepository(DataSource dataSource) {
 		this.dataSource = dataSource;
 	}
 
 	@Override
 	public List<Articles> findAll() {
-		String sql = "select article_id,title,contents,user_id,created_date from articles";
+		String sql = "select article_id,title,contents,user_id,created_date "
+					+ "from articles";
 		Connection connection = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -34,7 +34,7 @@ public class JdbcMemberRepository implements ArticlesRepository {
 			pstmt = connection.prepareStatement(sql);
 			rs = pstmt.executeQuery();
 			List<Articles> articlesList = new ArrayList<>();
-			while(rs.next()) {
+			while (rs.next()) {
 				Articles article = new Articles();
 				article.setArticleId(rs.getLong("article_id"));
 				article.setTitle(rs.getString("title"));
@@ -54,7 +54,8 @@ public class JdbcMemberRepository implements ArticlesRepository {
 
 	@Override
 	public void save(Articles article) {
-		String sql = "insert into articles(title,contents,user_id,created_date) values(?,?,?,now())";
+		String sql = "insert into articles(title,contents,user_id,created_date) "
+						+ "values(?,?,?,now())";
 		Connection connection = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -82,7 +83,33 @@ public class JdbcMemberRepository implements ArticlesRepository {
 
 	@Override
 	public Articles findByArticleId(long articleId) {
-		return null;
+		String sql = "select article_id,title,contents,user_id,created_date "
+					+ "from articles "
+					+ "where article_id = ?";
+		Connection connection = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try {
+			connection = getConnection();
+			pstmt = connection.prepareStatement(sql);
+			pstmt.setLong(1, articleId);
+			rs = pstmt.executeQuery();
+			if (rs.next()) {
+				Articles article = new Articles();
+				article.setTitle(rs.getString("title"));
+				article.setContents(rs.getString("contents"));
+				article.setWriter(rs.getString("user_id"));
+				article.setCreatedDate(rs.getTimestamp("created_date").toLocalDateTime());
+
+				return article;
+			} else {
+				throw new NullPointerException();
+			}
+		} catch (Exception e) {
+			throw new IllegalStateException(e);
+		} finally {
+			close(connection, pstmt, rs);
+		}
 	}
 
 	private Connection getConnection() {
