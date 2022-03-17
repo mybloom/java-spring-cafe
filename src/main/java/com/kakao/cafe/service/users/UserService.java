@@ -1,17 +1,16 @@
 package com.kakao.cafe.service.users;
 
 import com.kakao.cafe.domain.users.Users;
-import com.kakao.cafe.domain.users.MemoryUserRepository;
-import java.util.ArrayList;
+import com.kakao.cafe.domain.users.MemoryUsersRepository;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
 
-	private MemoryUserRepository userRepository;
+	private MemoryUsersRepository userRepository;
 
-	public UserService(MemoryUserRepository userRepository) {
+	public UserService(MemoryUsersRepository userRepository) {
 		this.userRepository = userRepository;
 	}
 
